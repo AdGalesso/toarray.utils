@@ -191,6 +191,24 @@ namespace toarray.utils
 
         #endregion
 
+        #region "  Strings Ajustment  "
+
+        public static string ClearStrings(this string value)
+        {
+            if (value.IsNullorEmpty()) return value;
+
+            return value.Replace(".", string.Empty)
+                        .Replace(",", string.Empty)
+                        .Replace(":", string.Empty)
+                        .Replace("/", string.Empty)
+                        .Replace(@"\", string.Empty)
+                        .Replace("\"", string.Empty)
+                        .Replace("'", string.Empty)
+                        .Replace("-", string.Empty);
+        }
+
+        #endregion
+
         #region "  Compress  "
 
         public static byte[] Zip(this string str)
