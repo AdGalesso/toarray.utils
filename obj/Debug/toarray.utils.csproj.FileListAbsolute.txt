@@ -1,5 +1,0 @@
-D:\toarray\toarray.utils\obj\Debug\toarray.utils.csprojResolveAssemblyReference.cache
-D:\toarray\toarray.utils\bin\Debug\toarray.utils.dll
-D:\toarray\toarray.utils\bin\Debug\toarray.utils.pdb
-D:\toarray\toarray.utils\obj\Debug\toarray.utils.dll
-D:\toarray\toarray.utils\obj\Debug\toarray.utils.pdb
