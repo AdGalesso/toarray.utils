@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace toarray.utils
 {
@@ -207,6 +206,126 @@ namespace toarray.utils
                         .Replace("-", string.Empty);
         }
 
+        public static string ClearAccents(this string value)
+        {
+            if (value.IsNullorEmpty()) return value;
+
+            value = Regex.Replace(value, "[áàâãª]", "a");
+            value = Regex.Replace(value, "[ÁÀÂÃ]", "A");
+            value = Regex.Replace(value, "[éèê]", "e");
+            value = Regex.Replace(value, "[ÉÈÊ]", "e");
+            value = Regex.Replace(value, "[íìî]", "i");
+            value = Regex.Replace(value, "[ÍÌÎ]", "I");
+            value = Regex.Replace(value, "[óòôõº]", "o");
+            value = Regex.Replace(value, "[ÓÒÔÕ]", "O");
+            value = Regex.Replace(value, "[úùû]", "u");
+            value = Regex.Replace(value, "[ÚÙÛ]", "U");
+            value = Regex.Replace(value, "[ç]", "c");
+            value = Regex.Replace(value, "[Ç]", "C");
+
+            return value;
+        }
+
+        public static string ClearHyphen(this string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+                return value.Replace("-", " ");
+
+            return value;
+        }
+
+        public static string ClearSpecialCharacters(this string value, bool keepWhiteSpaces = false, bool keepBar = false)
+        {
+            if (value.IsNullOrWhiteSpace())
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in value)
+            {
+                if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') | c == '.' || c == '_' || c == '-' || (c == ' ' && keepWhiteSpaces) || (c == '/' && keepBar) || (c == '\\' && keepBar))
+                    sb.Append(c);
+            }
+
+            return sb.ToString();
+        }
+
+
+        public static string InputHTTPonURL(this string URL, bool inputWWW = false)
+        {
+            if (URL.IsNullorEmpty()) return URL;
+
+            if (inputWWW)
+                return String.Format("http://{0}", Regex.Replace(URL, "http://", string.Empty, RegexOptions.IgnoreCase).InputWWWonURL());
+            else
+                return String.Format("http://{0}", Regex.Replace(URL, "http://", string.Empty, RegexOptions.IgnoreCase));
+        }
+
+        public static string InputWWWonURL(this string URL)
+        {
+            if (URL.IsNullorEmpty()) return URL;
+
+            return String.Format("www.{0}", Regex.Replace(URL, "www.", string.Empty, RegexOptions.IgnoreCase));
+        }
+
+        public static int OnlyNumbers(this string value)
+        {
+            return Regex.Match(value, @"\d+").Value.AsInt();
+        }
+
+        public static string OnlyAlphanumeric(this string value)
+        {
+            return Regex.Replace(value, @"[^A-Za-z0-9 ]", string.Empty).Trim();
+        }
+
+        #endregion
+
+        #region "  Format  "
+
+        public static string ToCNPJ(this string CNPJ)
+        {
+            if (CNPJ.IsNullorEmpty() || CNPJ.Length < 14) return CNPJ;
+
+            return string.Format("{0}.{1}.{2}/{3}-{4}",
+                CNPJ.Substring(0, 2), CNPJ.Substring(2, 3), CNPJ.Substring(5, 3), CNPJ.Substring(8, 4), CNPJ.Substring(12, 2));
+        }
+
+        public static string ToCPF(this string CPF)
+        {
+            if (CPF.IsNullorEmpty() || CPF.Length < 11) return CPF;
+
+            return string.Format("{0}.{1}.{2}-{3}",
+                CPF.Substring(0, 3), CPF.Substring(3, 3), CPF.Substring(6, 3), CPF.Substring(9, 2));
+        }
+
+        public static string ToCreditCardNumber(this string value)
+        {
+            if (value.Length < 10)
+                return "---";
+            else
+                return string.Format("**** **** **** {0}", value.Substring(0, 6), value.Substring(value.Length - 4), 4);
+        }
+
+        public static string ToHtml(this string value)
+        {
+            return WebUtility.HtmlEncode(value);
+        }
+
+        public static string ToText(this string value)
+        {
+            return WebUtility.HtmlDecode(value);
+        }
+
+        public static string URLEncode(this string url)
+        {
+            return WebUtility.UrlEncode(url);
+        }
+
+        public static string URLDecode(this string url)
+        {
+            return WebUtility.UrlDecode(url).Replace(" ", "+");
+        }
+
         #endregion
 
         #region "  Compress  "
@@ -242,6 +361,32 @@ namespace toarray.utils
             var bytes = Encoding.UTF8.GetBytes(str);
 
             return Unzip(bytes);
+        }
+
+        public static string HTMLPacker(this string html)
+        {
+            string htmlPacker = string.Empty;
+
+            Regex RegexBetweenTags = new Regex(@">(?! )\s+", RegexOptions.Compiled);
+            Regex RegexLineBreaks = new Regex(@"([\n\s])+?(?<= {2,})<", RegexOptions.Compiled);
+
+            htmlPacker = RegexBetweenTags.Replace(html, ">");
+            htmlPacker = RegexLineBreaks.Replace(htmlPacker, "<");
+            htmlPacker = Regex.Replace(htmlPacker, @"\s+", " ");
+
+            return htmlPacker;
+        }
+
+        #endregion
+
+        #region "  Cast  "
+
+        public static string AsString(this object item, string defaultString = default(string))
+        {
+            if (item == null || item.Equals(System.DBNull.Value))
+                return defaultString;
+
+            return item.ToString().Trim();
         }
 
         #endregion
